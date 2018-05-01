@@ -125,9 +125,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
 
             public void deliverResult(LinkedList<Movie> movies) {
-                moviesInfo.addAll(movies);
-                super.deliverResult(moviesInfo);
-                movieInfoRecyclerViewAdapter.setMovies(moviesInfo);
+
+                if (movies != null && !movies.isEmpty()) {
+                    moviesInfo.addAll(movies);
+                    super.deliverResult(moviesInfo);
+                    movieInfoRecyclerViewAdapter.setMovies(moviesInfo);
+                }
+
             }
 
         };

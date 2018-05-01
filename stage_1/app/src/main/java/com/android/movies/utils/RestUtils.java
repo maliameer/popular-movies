@@ -22,7 +22,7 @@ public final class RestUtils {
     private static final String TAG = RestUtils.class.getSimpleName();
 
     //Put your API_KEY
-    public static final String API_KEY = "?api_key=9a50b0845f2b7383172ceea82cddc33c";
+    public static final String API_KEY = "";
 
     public static final String MOVIE_IMAGES_BASE_URL = "http://image.tmdb.org/t/p/w185";
     public static final String BASE_MOVIE_URL = "http://api.themoviedb.org/3/movie/";

@@ -9,6 +9,8 @@ android {
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
+
+        buildConfigField("String", "API_KEY", API_KEY)
     }
     buildTypes {
         release {
@@ -24,4 +26,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.squareup.picasso:picasso:2.5.2'
+    implementation 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
                 String jsonPayload = "";
                 try {
-                    jsonPayload = RestUtils.getJsonPayload(currentUrl);
+                    jsonPayload = RestUtils.getJsonPayload(MainActivity.this, currentUrl);
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
                 }

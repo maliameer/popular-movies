@@ -14,6 +14,9 @@ import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
+import butterknife.ButterKnife;
+import butterknife.BindView;
+
 import com.android.movies.model.Movie;
 
 import com.android.movies.utils.JsonUtils;
@@ -26,6 +29,12 @@ public class DetailActivity extends AppCompatActivity {
 
     public static final String MOVIE_ID = "movie_id";
 
+    @BindView(R.id.image_iv) ImageView moviePostIv;
+    @BindView(R.id.movie_original_title) TextView originalTitleTv;
+    @BindView(R.id.release_date_tv) TextView releaseDateTv;
+    @BindView(R.id.movie_average_vote_tv) TextView averageVoteTv;
+    @BindView(R.id.plot_synopsis_tv) TextView plotSynopsisTv;
+
     private void closeOnError() {
         finish();
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
@@ -35,26 +44,16 @@ public class DetailActivity extends AppCompatActivity {
 
         if (movie != null) {
 
-            String movieName = movie.getOriginalTitle();
-            System.out.println("Movie Name: " + movieName);
-            setTitle(movieName);
-
+            String movieOriginalTitle = movie.getOriginalTitle();
             String posterPath = RestUtils.MOVIE_IMAGES_BASE_URL + movie.getMoviePosterImageUrl();
-            System.out.println("Poster Path: " + posterPath);
+            System.out.println("Movie Original Title: " + movieOriginalTitle + "; Poster Path: " + posterPath);
 
-            ImageView moviePostIv = findViewById(R.id.image_iv);
+            setTitle(movieOriginalTitle);
+
             Picasso.with(this).load(posterPath).into(moviePostIv);
-
-            TextView originalTitleTv = findViewById(R.id.movie_original_title);
             originalTitleTv.setText(movie.getOriginalTitle());
-
-            TextView releaseDateTv = findViewById(R.id.release_date_tv);
             releaseDateTv.setText(movie.getReleaseDate());
-
-            TextView averageVoteTv = findViewById(R.id.movie_average_vote_tv);
             averageVoteTv.setText(movie.getAverageVote().toString());
-
-            TextView plotSynopsisTv = findViewById(R.id.plot_synopsis_tv);
             plotSynopsisTv.setText(movie.getPlotSynopsis());
 
         }
@@ -66,6 +65,8 @@ public class DetailActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        ButterKnife.bind(this);
 
         RestUtils.setStrictMode();
 
@@ -83,7 +84,7 @@ public class DetailActivity extends AppCompatActivity {
                 System.out.println("URL String: " + urlString);
                 try {
 
-                    Movie movie = JsonUtils.parseMovieJson(RestUtils.getJsonPayload(urlString));
+                    Movie movie = JsonUtils.parseMovieJson(RestUtils.getJsonPayload(this, urlString));
                     populateUI(movie);
 
                 } catch (Exception e) {

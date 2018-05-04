@@ -90,7 +90,7 @@ public class DetailActivity extends AppCompatActivity {
 
                         favoriteIv.setImageResource(R.drawable.favorite);
                         favoriteIv.setTag(R.string.favorite);
-                        favoriteIv.setTooltipText(getString(R.string.favorite));
+                        //favoriteIv.setTooltipText(getString(R.string.favorite));
                         message = getString(R.string.mark_favorite);
 
                         try {
@@ -103,7 +103,7 @@ public class DetailActivity extends AppCompatActivity {
 
                         favoriteIv.setImageResource(R.drawable.unfavorite);
                         favoriteIv.setTag(R.string.unfavorite);
-                        favoriteIv.setTooltipText(getString(R.string.unfavorite));
+                        //favoriteIv.setTooltipText(getString(R.string.unfavorite));
                         message = getString(R.string.remove_unfavorite);
 
                         movieService.removeMovieAsFavorite(getApplicationContext(), movie.getId());

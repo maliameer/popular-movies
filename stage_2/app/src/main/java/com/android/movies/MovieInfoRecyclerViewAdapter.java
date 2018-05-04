@@ -91,7 +91,7 @@ public class MovieInfoRecyclerViewAdapter extends RecyclerView.Adapter<MovieInfo
         final Movie movie = movies.get(position);
 
         movieAdapterViewHolder.titleTextView.setText(movie.getOriginalTitle());
-        movieAdapterViewHolder.posterImageView.setTooltipText(movie.getOriginalTitle());
+        //movieAdapterViewHolder.posterImageView.setTooltipText(movie.getOriginalTitle());
 
         String posterPath = RestUtils.MOVIE_IMAGES_BASE_URL + movie.getMoviePosterImageUrl();
         Picasso.with(context).load(posterPath).into(movieAdapterViewHolder.posterImageView);

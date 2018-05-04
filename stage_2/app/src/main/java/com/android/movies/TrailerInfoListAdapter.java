@@ -42,7 +42,7 @@ public class TrailerInfoListAdapter extends ArrayAdapter<Trailer> {
         TextView nameTextView = rowView.findViewById(R.id.trailer_name_tv);
 
         nameTextView.setText(trailer.getName());
-        trailerImageView.setTooltipText(trailer.getName());
+        //trailerImageView.setTooltipText(trailer.getName());
 
         trailerImageView.setOnClickListener(new View.OnClickListener() {
 

@@ -1,6 +1,6 @@
 package com.android.movies.utils;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,9 +57,9 @@ public class JsonUtils {
 
     }
 
-    public static LinkedList<Movie> parseMovies(JSONObject jsonObject) {
+    public static ArrayList<Movie> parseMovies(JSONObject jsonObject) {
 
-        LinkedList<Movie> movies = new LinkedList<Movie>();
+        ArrayList<Movie> movies = new ArrayList<Movie>();
         if (jsonObject != null) {
 
             JSONArray jsonArray = null;
@@ -69,12 +69,16 @@ public class JsonUtils {
                 je.printStackTrace();
             }
 
-            for (int index = 0; index < jsonArray.length(); index++) {
+            if (jsonArray != null && jsonArray.length() > 0) {
 
-                try {
-                    movies.add(JsonUtils.getMovieInstance(jsonArray.getJSONObject(index)));
-                } catch (JSONException je) {
-                    je.printStackTrace();
+                for (int index = 0; index < jsonArray.length(); index++) {
+
+                    try {
+                        movies.add(JsonUtils.getMovieInstance(jsonArray.getJSONObject(index)));
+                    } catch (JSONException je) {
+                        je.printStackTrace();
+                    }
+
                 }
 
             }
@@ -85,10 +89,10 @@ public class JsonUtils {
 
     }
 
-    public static LinkedList<Trailer> parseMovieTrailers(String json) {
+    public static ArrayList<Trailer> parseMovieTrailers(String json) {
 
         JSONArray jsonArray = getResultsJsonArray(json);
-        LinkedList<Trailer> trailers = new LinkedList<Trailer>();
+        ArrayList<Trailer> trailers = new ArrayList<Trailer>();
         if (jsonArray != null && jsonArray.length() > 0) {
 
             for (int index = 0; index < jsonArray.length(); index++) {
@@ -113,10 +117,10 @@ public class JsonUtils {
 
     }
 
-    public static LinkedList<Review> parseReviews(String json) {
+    public static ArrayList<Review> parseReviews(String json) {
 
         JSONArray jsonArray = getResultsJsonArray(json);
-        LinkedList<Review> reviews = new LinkedList<Review>();
+        ArrayList<Review> reviews = new ArrayList<Review>();
         if (jsonArray != null && jsonArray.length() > 0) {
 
             for (int index = 0; index < jsonArray.length(); index++) {

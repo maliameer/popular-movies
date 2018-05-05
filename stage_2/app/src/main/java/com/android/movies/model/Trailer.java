@@ -1,6 +1,21 @@
 package com.android.movies.model;
 
-public class Trailer {
+import android.os.Parcelable;
+import android.os.Parcel;
+
+public class Trailer implements Parcelable {
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+        public Trailer createFromParcel(Parcel parcel) {
+            return new Trailer(parcel);
+        }
+
+        public Trailer[] newArray(int size) {
+            return new Trailer[size];
+        }
+
+    };
 
     private String name;
     private String key;
@@ -9,6 +24,24 @@ public class Trailer {
     public Trailer(String name, String key) {
         this.name = name;
         this.key = key;
+    }
+
+    public Trailer(Parcel parcel) {
+        this.name = parcel.readString();
+        this.key = parcel.readString();
+        this.site = parcel.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(this.name);
+        parcel.writeString(this.key);
+        parcel.writeString(this.site);
     }
 
     public String getName() {

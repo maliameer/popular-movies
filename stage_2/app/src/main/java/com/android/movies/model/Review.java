@@ -1,11 +1,33 @@
 package com.android.movies.model;
 
-public class Review {
+import android.os.Parcelable;
+import android.os.Parcel;
+
+public class Review implements Parcelable {
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+        public Review createFromParcel(Parcel parcel) {
+            return new Review(parcel);
+        }
+
+        public Review[] newArray(int size) {
+            return new Review[size];
+        }
+
+    };
 
     private String author;
     private String content;
     private String subContent;
     private String url;
+
+    public Review(Parcel parcel) {
+        this.author = parcel.readString();
+        this.content = parcel.readString();
+        this.subContent = parcel.readString();
+        this.url = parcel.readString();
+    }
 
     public Review(String author, String content, String url) {
 
@@ -13,19 +35,23 @@ public class Review {
         this.content = content;
         this.url = url;
 
-        if (content == null || content.trim().isEmpty()) {
-            content = "Review by " + this.author;
-        } else {
-
-            int subContentThreshold = 50;
-            if ((content = content.trim()).length() > subContentThreshold) {
-                this.subContent = content.substring(0, subContentThreshold) + " ...";
-            } else {
-                this.subContent = content;
-            }
-
+        if (content == null || (content = content.trim()).isEmpty()) {
+            content = "Reviewed by " + this.author;
         }
 
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(this.author);
+        parcel.writeString(this.content);
+        parcel.writeString(this.subContent);
+        parcel.writeString(this.url);
     }
 
     public String getAuthor() {
@@ -44,8 +70,22 @@ public class Review {
         this.content = content;
     }
 
-    public String getSubContent() {
-        return subContent;
+    public String getSubContent(int orientation) {
+
+        if (content != null && !content.isEmpty()) {
+
+            int subContentThreshold = ((orientation == 1) ? 50 : 100);
+            if ((content = content.trim()).length() > subContentThreshold) {
+                this.subContent = content.substring(0, subContentThreshold) + " ...";
+            } else {
+                this.subContent = content;
+            }
+            return  this.subContent;
+
+        } else {
+            return "";
+        }
+
     }
 
     public String getUrl() {

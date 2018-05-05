@@ -5,13 +5,28 @@ import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class Movie {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Movie implements Parcelable {
 
     private static final String oldPattern = "yyyy-MM-dd";
     private static final String newPattern = "MM/dd/yyyy";
 
     private static final SimpleDateFormat oldDateFormat = new SimpleDateFormat(oldPattern);
     private static final SimpleDateFormat newDateFormat = new SimpleDateFormat(newPattern);
+
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+
+        public Movie createFromParcel(Parcel parcel) {
+            return new Movie(parcel);
+        }
+
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+
+    };
 
     private Long id;
 
@@ -21,6 +36,15 @@ public class Movie {
     private String moviePosterImageUrl;
     private String plotSynopsis;
     private String releaseDate;
+
+    public Movie(Parcel parcel){
+        this.id = parcel.readLong();
+        this.originalTitle = parcel.readString();
+        this.moviePosterImageUrl =  parcel.readString();
+        this.plotSynopsis = parcel.readString();
+        this.averageVote =  parcel.readDouble();
+        this.releaseDate = parcel.readString();
+    }
 
     public Movie(Long id, String originalTitle, String moviePosterImageUrl, String plotSynopsis, Double averageVote, String releaseDate) {
 
@@ -44,8 +68,25 @@ public class Movie {
 
     }
 
-    public Movie(FavoriteMovie favoriteMovie) {
-        this(favoriteMovie.getMovieId(), favoriteMovie.getTitle(), favoriteMovie.getPosterUrl(), null, null, null);
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+
+        parcel.writeLong(this.id);
+        parcel.writeString(this.originalTitle);
+        parcel.writeString(this.moviePosterImageUrl);
+        parcel.writeString(this.plotSynopsis);
+
+        if (this.averageVote != null) {
+            parcel.writeDouble(this.averageVote);
+        }
+
+        parcel.writeString(this.releaseDate);
+
     }
 
     public Long getId() {

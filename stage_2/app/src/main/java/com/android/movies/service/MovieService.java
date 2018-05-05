@@ -1,14 +1,19 @@
 package com.android.movies.service;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.ArrayList;
 
-import android.content.Context;
+import android.content.ContentValues;
+import android.content.ContentResolver;
 
-import com.android.movies.db.MovieDatabase;
+import android.net.Uri;
 
-import com.android.movies.model.FavoriteMovie;
+import android.database.Cursor;
+
 import com.android.movies.model.Movie;
+
+import com.android.movies.db.FavoriteMovieTable;
+
+import com.android.movies.contentprovider.FavoriteMovieContentProvider;
 
 /*
   NOTE: Since, "Android Room" is used for Simple DAO operations as specified in specs for "Stage 2" i.e. just to add/remove Movies as Favorites and list Favorite Movies,
@@ -17,29 +22,42 @@ import com.android.movies.model.Movie;
 */
 public class MovieService {
 
-    public boolean isFavoriteMovie(Context context, Long movieId) {
-        List<FavoriteMovie> favoriteMovieList = MovieDatabase.getDatabase(context).favoriteMovieDao().findMovie(movieId);
-        return (favoriteMovieList != null && !favoriteMovieList.isEmpty());
+    public boolean isFavoriteMovie(ContentResolver contentResolver, Long movieId) {
+
+        Cursor cursor = contentResolver.query(Uri.parse(FavoriteMovieContentProvider.CONTENT_URI + "/" + movieId), new String[] { FavoriteMovieTable.COLUMN_MOVIE_ID },
+                                             null, null, null);
+        return (cursor.getCount() > 0);
+
     }
 
-    public void markMovieAsFavorite(Context context, FavoriteMovie favoriteMovie) {
-        MovieDatabase.getDatabase(context).favoriteMovieDao().addFavoriteMovie(favoriteMovie);
+    public void markMovieAsFavorite(ContentResolver contentResolver, Movie movie) {
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(FavoriteMovieTable.COLUMN_MOVIE_ID, movie.getId());
+        contentValues.put(FavoriteMovieTable.COLUMN_TITLE, movie.getOriginalTitle());
+        contentValues.put(FavoriteMovieTable.COLUMN_POSTER_URL, movie.getMoviePosterImageUrl());
+
+        contentResolver.insert(FavoriteMovieContentProvider.CONTENT_URI , contentValues);
+
     }
 
-    public void removeMovieAsFavorite(Context context, Long movieId) {
-        MovieDatabase.getDatabase(context).favoriteMovieDao().delete(movieId);
+    public void removeMovieAsFavorite(ContentResolver contentResolver, Long movieId) {
+        contentResolver.delete(Uri.parse(FavoriteMovieContentProvider.CONTENT_URI + "/" + movieId), null, null);
     }
 
-    public LinkedList<Movie> getFavoriteMovies(Context context) {
+    public ArrayList<Movie> getFavoriteMovies(ContentResolver contentResolver) {
 
-        LinkedList<Movie> movieList = null;
-        List<FavoriteMovie> favoriteMovieList = MovieDatabase.getDatabase(context).favoriteMovieDao().findMovies();
-        if (favoriteMovieList != null && !favoriteMovieList.isEmpty()) {
+        ArrayList<Movie> movieList = new ArrayList<Movie>();
+        Cursor cursor = contentResolver.query(FavoriteMovieContentProvider.CONTENT_URI,
+                                              new String[] { FavoriteMovieTable.COLUMN_MOVIE_ID, FavoriteMovieTable.COLUMN_TITLE, FavoriteMovieTable.COLUMN_POSTER_URL },
+                                             null,null, null);
+        while (cursor.moveToNext()) {
 
-            movieList = new LinkedList<Movie>();
-            for (FavoriteMovie favoriteMovie : favoriteMovieList) {
-                movieList.add(new Movie(favoriteMovie));
-            }
+            long movieId = cursor.getLong(cursor.getColumnIndexOrThrow(FavoriteMovieTable.COLUMN_MOVIE_ID));
+            String title = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteMovieTable.COLUMN_TITLE));
+            String posterUrl = cursor.getString(cursor.getColumnIndexOrThrow(FavoriteMovieTable.COLUMN_POSTER_URL));
+
+            movieList.add(new Movie(movieId, title, posterUrl, null, null, null));
 
         }
 

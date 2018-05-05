@@ -1,6 +1,6 @@
 package com.android.movies;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,15 +26,15 @@ public class MovieInfoRecyclerViewAdapter extends RecyclerView.Adapter<MovieInfo
 
     private static LayoutInflater layoutInflater;
 
-    private LinkedList<Movie> movies;
+    private ArrayList<Movie> movies;
 
-    public LinkedList<Movie> getMovies() {
+    public ArrayList<Movie> getMovies() {
         return movies;
     }
 
-    public void setMovies(LinkedList<Movie> movies) {
+    public void setMovies(ArrayList<Movie> movies) {
 
-        LinkedList<Movie> uniqueMovies = new LinkedList<Movie>();
+        ArrayList<Movie> uniqueMovies = new ArrayList<Movie>();
         if (movies != null && !movies.isEmpty()) {
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -60,7 +60,7 @@ public class MovieInfoRecyclerViewAdapter extends RecyclerView.Adapter<MovieInfo
         return ((movies != null) ? movies.size() : 0);
     }
 
-    public MovieInfoRecyclerViewAdapter(Context context, LinkedList<Movie> movies) {
+    public MovieInfoRecyclerViewAdapter(Context context, ArrayList<Movie> movies) {
         this.context = context;
         this.movies = movies;
         this.layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);

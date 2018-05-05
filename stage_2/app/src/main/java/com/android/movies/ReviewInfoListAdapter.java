@@ -37,7 +37,7 @@ public class ReviewInfoListAdapter extends ArrayAdapter<Review> {
         TextView subContentTextView = rowView.findViewById(R.id.sub_content_tv);
         TextView authorTextView = rowView.findViewById(R.id.author_tv);
 
-        subContentTextView.setText(review.getSubContent());
+        subContentTextView.setText(review.getSubContent(context.getResources().getConfiguration().orientation));
         authorTextView.setText((context.getString(R.string.by) + review.getAuthor()));
 
         subContentTextView.setOnClickListener(new View.OnClickListener() {
@@ -45,7 +45,8 @@ public class ReviewInfoListAdapter extends ArrayAdapter<Review> {
             @Override
             public void onClick(View view) {
 
-            System.out.println("Review \"" + review.getSubContent() + "\" is selected, opening it in he browser ...");
+            System.out.println("Review \"" + review.getSubContent(context.getResources().getConfiguration().orientation) +
+                               "\" is selected, opening it in he browser ...");
             Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(review.getUrl()));
             context.startActivity(webIntent);
 

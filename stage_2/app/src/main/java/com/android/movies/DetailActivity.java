@@ -1,8 +1,9 @@
 package com.android.movies;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import android.content.Intent;
 
@@ -25,8 +26,6 @@ import com.android.movies.model.Movie;
 import com.android.movies.model.Trailer;
 import com.android.movies.model.Review;
 
-import com.android.movies.model.FavoriteMovie;
-
 import com.android.movies.service.MovieService;
 
 import com.android.movies.utils.JsonUtils;
@@ -37,6 +36,10 @@ public class DetailActivity extends AppCompatActivity {
 
     private static final long DEFAULT_MOVIE_ID = -1;
 
+    public static final String SAVED_MOVIE = "SAVED_MOVIE";
+    public static final String SAVED_MOVIE_TRAILERS = "SAVED_MOVIE_TRAILERS";
+    public static final String SAVED_MOVIE_REVIEWS = "SAVED_MOVIE_REVIEWS";
+
     public static final String MOVIE_ID = "movie_id";
 
     @BindView(R.id.poster_iv) ImageView moviePosterIv;
@@ -45,6 +48,10 @@ public class DetailActivity extends AppCompatActivity {
     @BindView(R.id.release_date_tv) TextView releaseDateTv;
     @BindView(R.id.movie_average_vote_tv) TextView averageVoteTv;
     @BindView(R.id.plot_synopsis_tv) TextView plotSynopsisTv;
+
+    private Movie movie;
+    private ArrayList<Trailer> trailers;
+    private ArrayList<Review> reviews;
 
     private void closeOnError() {
         finish();
@@ -68,7 +75,7 @@ public class DetailActivity extends AppCompatActivity {
             Picasso.with(this).load(posterPath).into(moviePosterIv);
 
             final MovieService movieService = new MovieService();
-            if (movieService.isFavoriteMovie(getApplicationContext(), movie.getId())) {
+            if (movieService.isFavoriteMovie(getContentResolver(), movie.getId())) {
                 favoriteIv.setImageResource(R.drawable.favorite);
                 favoriteIv.setTag(R.string.favorite);
                 System.out.println("Movie Original Title: " + movieOriginalTitle + " is a FAVORITE movie.");
@@ -94,7 +101,7 @@ public class DetailActivity extends AppCompatActivity {
                         message = getString(R.string.mark_favorite);
 
                         try {
-                            movieService.markMovieAsFavorite(getApplicationContext(), new FavoriteMovie(movie));
+                            movieService.markMovieAsFavorite(getContentResolver(), movie);
                         } catch (Exception e) {
                             System.out.println("Non-critical issue occurred while inserting Movie as Favorite which has already been added as Favorite.");
                         }
@@ -106,7 +113,7 @@ public class DetailActivity extends AppCompatActivity {
                         //favoriteIv.setTooltipText(getString(R.string.unfavorite));
                         message = getString(R.string.remove_unfavorite);
 
-                        movieService.removeMovieAsFavorite(getApplicationContext(), movie.getId());
+                        movieService.removeMovieAsFavorite(getContentResolver(), movie.getId());
 
                     }
 
@@ -116,6 +123,18 @@ public class DetailActivity extends AppCompatActivity {
                 }
 
             });
+
+            if (this.trailers != null) {
+                TrailerInfoListAdapter trailerInfoListAdapter = new TrailerInfoListAdapter(this, this.trailers.toArray(new Trailer[this.trailers.size()]));
+                ListView trailersListView = findViewById(R.id.trailers_list_view);
+                trailersListView.setAdapter(trailerInfoListAdapter);
+            }
+
+            if (this.reviews != null) {
+                ReviewInfoListAdapter reviewInfoListAdapter = new ReviewInfoListAdapter(this, this.reviews.toArray(new Review[this.reviews.size()]));
+                ListView reviewsListView = findViewById(R.id.reviews_list_view);
+                reviewsListView.setAdapter(reviewInfoListAdapter);
+            }
 
         }
 
@@ -131,43 +150,71 @@ public class DetailActivity extends AppCompatActivity {
 
         RestUtils.setStrictMode();
 
-        Intent intent = getIntent();
-        if (intent == null) {
-            closeOnError();
-        } else {
+        if(savedInstanceState == null) {
 
-            long movieId = intent.getLongExtra(MOVIE_ID, DEFAULT_MOVIE_ID);
-            if (movieId == DEFAULT_MOVIE_ID) { //MOVIE_ID not found in intent
+            Intent intent = getIntent();
+            if (intent == null) {
                 closeOnError();
+                return;
             } else {
 
-                String baseMovieUrlString = RestUtils.BASE_MOVIE_URL + movieId;
-                String movieUrlString = baseMovieUrlString + RestUtils.API_KEY;
-                try {
-
-                    Movie movie = JsonUtils.parseMovieJson(RestUtils.getJsonPayload(this, movieUrlString));
-                    populateUI(movie);
-
-                    String trailersUrlString = RestUtils.getMovieTrailersUrl(baseMovieUrlString);
-                    LinkedList<Trailer> trailers = JsonUtils.parseMovieTrailers(RestUtils.getJsonPayload(this, trailersUrlString));
-                    ListView trailersListView = findViewById(R.id.trailers_list_view);
-                    TrailerInfoListAdapter trailerInfoListAdapter = new TrailerInfoListAdapter(this, trailers.toArray(new Trailer[trailers.size()]));
-                    trailersListView.setAdapter(trailerInfoListAdapter);
-
-                    String reviewsUrlString = RestUtils.getMovieReviewsUrl(baseMovieUrlString);
-                    LinkedList<Review> reviews = JsonUtils.parseReviews(RestUtils.getJsonPayload(this, reviewsUrlString));
-                    ListView reviewsListView = findViewById(R.id.reviews_list_view);
-                    ReviewInfoListAdapter reviewInfoListAdapter = new ReviewInfoListAdapter(this, reviews.toArray(new Review[reviews.size()]));
-                    reviewsListView.setAdapter(reviewInfoListAdapter);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                long movieId = intent.getLongExtra(MOVIE_ID, DEFAULT_MOVIE_ID);
+                if (movieId == DEFAULT_MOVIE_ID) { //MOVIE_ID not found in intent
                     closeOnError();
+                    return;
+                } else {
+
+                    String baseMovieUrlString = RestUtils.BASE_MOVIE_URL + movieId;
+                    String movieUrlString = baseMovieUrlString + RestUtils.API_KEY;
+                    try {
+
+                        this.movie = JsonUtils.parseMovieJson(RestUtils.getJsonPayload(this, movieUrlString));
+
+                        String trailersUrlString = RestUtils.getMovieTrailersUrl(baseMovieUrlString);
+                        this.trailers = JsonUtils.parseMovieTrailers(RestUtils.getJsonPayload(this, trailersUrlString));
+
+                        String reviewsUrlString = RestUtils.getMovieReviewsUrl(baseMovieUrlString);
+                        this.reviews = JsonUtils.parseReviews(RestUtils.getJsonPayload(this, reviewsUrlString));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        closeOnError();
+                        return;
+                    }
+
                 }
 
             }
 
+        } else {
+
+            this.movie = savedInstanceState.getParcelable(SAVED_MOVIE);
+            this.trailers = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_TRAILERS);
+            this.reviews = savedInstanceState.getParcelableArrayList(SAVED_MOVIE_REVIEWS);
+
         }
+
+        this.populateUI(this.movie);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+
+        outState.putParcelable(SAVED_MOVIE, this.movie);
+        outState.putParcelableArrayList(SAVED_MOVIE_TRAILERS, this.trailers);
+        outState.putParcelableArrayList(SAVED_MOVIE_REVIEWS, this.reviews);
+        super.onSaveInstanceState(outState, outPersistentState);
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        outState.putParcelable(SAVED_MOVIE, this.movie);
+        outState.putParcelableArrayList(SAVED_MOVIE_TRAILERS, this.trailers);
+        outState.putParcelableArrayList(SAVED_MOVIE_REVIEWS, this.reviews);
+        super.onSaveInstanceState(outState);
 
     }
 

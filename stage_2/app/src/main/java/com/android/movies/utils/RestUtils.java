@@ -18,6 +18,8 @@ import android.net.Uri;
 
 import android.util.Log;
 
+import android.widget.Toast;
+
 import com.android.movies.BuildConfig;
 
 /**
@@ -39,38 +41,46 @@ public final class RestUtils {
     public static final String TRAILER_VIEWER_BASE_URL = "http://www.youtube.com/watch?v=";
 
     public static String getPagedUrl(String url, int pageNumber) {
+
         if (url.indexOf("&") > 0) {
             url = url.substring(0, url.lastIndexOf("&"));
         }
         return (url + "&page=" + pageNumber);
+
     }
 
     public static void setStrictMode() {
+
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+
     }
 
     public static String getMovieTrailersUrl(String baseMovieUrlString) {
+
         String trailersUrlString = baseMovieUrlString + "/videos" + API_KEY;
         System.out.println("Trailers URL String: " + trailersUrlString);
         return trailersUrlString;
+
     }
 
     public static String getMovieReviewsUrl(String baseMovieUrlString) {
+
         String reviewsUrlString = baseMovieUrlString + "/reviews" + API_KEY;
         System.out.println("Reviews URL String: " + reviewsUrlString);
         return reviewsUrlString;
+
     }
 
     public static String getJsonPayload(Context context, String urlString) throws IOException {
 
         ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
-        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+        boolean isConnected = ((activeNetwork != null) && activeNetwork.isConnectedOrConnecting());
 
-        String jsonPayload = null;
+        String jsonPayload = "";
         if (isConnected) {
 
             URL url = null;
@@ -80,7 +90,7 @@ public final class RestUtils {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-            Log.v(TAG, "Built URI " + url);
+            Log.v(TAG, "Built URI: " + url);
 
             if (url != null) {
 
@@ -99,6 +109,9 @@ public final class RestUtils {
 
             }
 
+        } else {
+            Toast.makeText(context, "Not Connected to the Internet. Please connect to the Internet then try again, Thank You",
+                           Toast.LENGTH_LONG).show();
         }
 
         return jsonPayload;
